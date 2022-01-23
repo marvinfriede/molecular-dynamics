@@ -60,7 +60,7 @@ program main
   v = 0.0_wp
 
   !> write energies
-  open (unit=15, file="energy.csv")
+  open (unit=15, file="out/energy.csv")
   write (15, "(A27)") "time,e_kin,e_pot_harm,e_tot"
 
   !> pass 1 for sc and 4 for fcc
@@ -72,7 +72,7 @@ program main
   e_tot = e_kin + e_pot_harm
 
   !> write trajectory for starting positions
-  open (unit=16, file="trj.xyz")
+  open (unit=16, file="out/trj.xyz")
   write (16, "(I3)") natom
   write (16, "(F15.10)") e_tot
   do w = 1, natom

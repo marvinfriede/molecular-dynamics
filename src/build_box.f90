@@ -36,7 +36,7 @@ contains
     real(wp) :: dl
 
     ! output file: fort.14
-    open (unit=14, file="grid.xyz")
+    open (unit=14, file="out/box.xyz")
     write (14, "(1X,I3)") natom
     write (14, *) ""
 
