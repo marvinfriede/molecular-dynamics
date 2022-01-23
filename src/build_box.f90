@@ -7,7 +7,15 @@ module build_box
 
   public :: build_grid
 contains
-  subroutine build_grid(formula_units)
+  subroutine build_grid(xyz, natom, l, formula_units)
+    implicit none
+
+    !> number of atoms
+    integer, intent(in) :: natom
+
+    !> atom coordinates of the system
+    real(wp), dimension(3, natom), intent(out) :: xyz
+
     !> number of formula units per unit cell
     integer, intent(in) :: formula_units
 
@@ -20,13 +28,10 @@ contains
     !> coordinates
     real(wp) :: x, y, z
 
-    !> number of atoms
-    integer, parameter :: natom = 108
-
     !> length of cubic box
-    integer, parameter :: l = 18
+    real(wp), intent(in) :: l
     !> half length of cubic box
-    real(wp), parameter :: hl = l/2
+    real(wp) :: hl
     !> distance of atoms along side of cube
     real(wp) :: dl
 
@@ -41,36 +46,49 @@ contains
       nl = nl + 1
     end if
 
+    hl = l/2.0_wp
     dl = l/nl
 
-    n = 0
+    n = 1
     outer: do i = 0, nl - 1
       do j = 0, nl - 1
         do k = 0, nl - 1
           x = i*dl - hl
           y = j*dl - hl
           z = k*dl - hl
+          xyz(1, n) = x
+          xyz(2, n) = y
+          xyz(3, n) = z
           write (14, *) "Ar", x, y, z
 
           if (formula_units == 4) then
             x = i*dl - hl
             y = (j + 0.5_wp)*dl - hl
             z = (k + 0.5_wp)*dl - hl
+            xyz(1, n + 1) = x
+            xyz(2, n + 1) = y
+            xyz(3, n + 1) = z
             write (14, *) "Ar", x, y, z
 
             x = (i + 0.5_wp)*dl - hl
             y = j*dl - hl
             z = (k + 0.5_wp)*dl - hl
+            xyz(1, n + 2) = x
+            xyz(2, n + 2) = y
+            xyz(3, n + 2) = z
             write (14, *) "Ar", x, y, z
 
             x = (i + 0.5_wp)*dl - hl
             y = (j + 0.5_wp)*dl - hl
             z = k*dl - hl
+            xyz(1, n + 3) = x
+            xyz(2, n + 3) = y
+            xyz(3, n + 3) = z
             write (14, *) "Ar", x, y, z
           end if
 
           n = n + formula_units
-          if (natom == n) exit outer
+          if ((natom + 1) == n) exit outer
         end do
       end do
     end do outer
