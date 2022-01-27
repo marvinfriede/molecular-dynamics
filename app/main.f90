@@ -46,6 +46,8 @@ program main
   real(wp) :: T
   !> temperature to rescale velocities
   integer, parameter :: T_req = 8
+  !> factor to rescale velocities
+  real(wp) :: T_scaler
 
   !> potential energy
   real(wp) :: e_pot
@@ -61,14 +63,10 @@ program main
   real(wp) :: temp
 
   ! initial temperature scaling (1 means no scaling)
-  temp = 1.0_wp
+  T_scaler = 1.0_wp
 
   ! initial velocities
   v = 0.0_wp
-
-  ! write energies
-  open (unit=15, file="out/energy.csv")
-  write (15, "(A22)") "time,e_kin,e_pot,e_tot"
 
   ! pass 1 for sc and 4 for fcc
   call build_grid(xyz, natom, l, 4)
@@ -76,16 +74,24 @@ program main
   ! evaluate forces and hence f/m from positions
   call calc_force(natom, xyz, f, l, e_pot)
 
+  ! write energies
+  open (unit=15, file="out/energy.csv")
+  write (15, "(A22)") "time,e_kin,e_pot,e_tot"
+
   ! write trajectory for starting positions
   open (unit=16, file="out/trj.xyz")
   write (16, "(I3)") natom
-  write (16, "(F15.8)") e_pot ! e_kin = 0 in first step
+  write (16, "(F15.8)") e_pot ! e_kin = 0 in first step (v = 0)
   do w = 1, natom
     write (16, *) "Ar", xyz(1, w), xyz(2, w), xyz(3, w)
   end do
 
-  time_prop: do i = 1, itime
-    ! scale factor for velocities
+  !*************************************************************
+  !************************* MAIN LOOP *************************
+  !*************************************************************
+
+  main_loop: do i = 1, itime
+    ! scale factor for velocities (skip first iteration because v = 0)
     if (i .gt. 1) then
       T = e_kin/3.0_wp/natom
       temp = sqrt(T_req/T)
@@ -103,7 +109,7 @@ program main
     call calc_force(natom, xyz, f, l, e_pot)
 
     do j = 1, natom
-      ! propagate velocities again (half step)
+      ! propagate velocities again (half step) (no scaling?)
       v(:, j) = v(:, j) + 0.5_wp*f(:, j)/mass*delta
     end do
 
@@ -124,7 +130,5 @@ program main
     do w = 1, natom
       write (16, *) "Ar", xyz(1, w), xyz(2, w), xyz(3, w)
     end do
-
-  end do time_prop
-
+  end do main_loop
 end program main
