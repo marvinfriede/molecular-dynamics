@@ -59,9 +59,6 @@ program main
   !> iteration variables
   integer :: i, j, w
 
-  !> temporary variable
-  real(wp) :: temp
-
   ! initial temperature scaling (1 means no scaling)
   T_scaler = 1.0_wp
 
@@ -94,12 +91,12 @@ program main
     ! scale factor for velocities (skip first iteration because v = 0)
     if (i .gt. 1) then
       T = e_kin/3.0_wp/natom
-      temp = sqrt(T_req/T)
+      T_scaler = sqrt(T_req/T)
     end if
 
     do j = 1, natom
       ! scale and propagate velocities (half step)
-      v(:, j) = temp*(v(:, j) + 0.5_wp*f(:, j)/mass*delta)
+      v(:, j) = T_scaler*(v(:, j) + 0.5_wp*f(:, j)/mass*delta)
 
       ! propagate positions
       xyz(:, j) = xyz(:, j) + v(:, j)*delta
