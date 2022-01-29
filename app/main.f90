@@ -90,7 +90,7 @@ program main
   main_loop: do i = 1, itime
     ! scale factor for velocities (skip first iteration because v = 0)
     if (i .gt. 1) then
-      T = e_kin/3.0_wp/natom
+      T = e_kin/1.5_wp/natom
       T_scaler = sqrt(T_req/T)
     end if
 
